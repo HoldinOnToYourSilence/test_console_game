@@ -6,7 +6,7 @@ player = {
     "name":"Player",
     "health": 25,
     "pos": 0,
-    "inventory": {"Sword":{"dmg":10,"crit":10,"durability":10}},
+    "inventory": {},
     "xp": 0,
     "lvl": 0
 }
@@ -38,21 +38,11 @@ enemys = [
 },
 ]
 
-possibleItems = [
-{
-    "name":"Sword",
-    "basDmg": 10
-},
-{
-    "name":"Bow",
-    "basDmg": 7
-},
-{
-    "name":"Spell",
-    "basDmg": 5,
-    "buff":{}
-},
-]
+possibleItems = {
+"Sword":{"dmg":10,"crit":10,"durability":10},
+"Bow":{"dmg":10,"crit":10,"durability":10},
+"Spell":{"dmg":10,"crit":10,"durability":10}
+}
 
 rooms = [
 {
@@ -111,13 +101,18 @@ rooms = [
 }
 ]
 
+def gameStart():
+    chooseWeapon = input(f'Choose a weapon. {", ".join(possibleItems.keys())}\n')
+    player["inventory"][chooseWeapon] = possibleItems[chooseWeapon]
+    newRoom(0)
+
 
 def newRoom(pos):
     room = rooms[pos]
     print(f"You are now in the {room['name']}")
     if len(room['enemys']) != 0:
         enemy = enemys[room['enemys'][random.randint(0, len(room['enemys'])- 1)]]
-        print(f"In this room you encounter a {enemy['name']}")
+        print(f"In this room you encounter a {enemy['name']} with {enemy['health']}hp")
     
     while 1:
         action = input("").split()
@@ -152,17 +147,19 @@ def fight(enemy,room):
 
 def combat(enemy,enemyWeapons):
     attackWeapon = input("Weapon?: ")
-    enemy["health"] = calcDmg(player, enemy, attackWeapon)
+    dmgDealtEnemy = calcDmg(player, attackWeapon)
+    enemy["health"] =  enemy["health"] - dmgDealtEnemy
     if enemy["health"] < 1:
         print(f"You attacked the {enemy['name']} with your {attackWeapon}\nThe {enemy['name']} died")
         loot(enemy,enemyWeapons)
         return
-    print(f"You attacked the {enemy['name']} with your {attackWeapon}\nThe {enemy['name']} now has {enemy['health']}hp")
+    print(f"You attacked the {enemy['name']} for {dmgDealtEnemy} with your {attackWeapon}\nThe {enemy['name']} now has {enemy['health']}hp")
     enemyWeapon = enemyWeapons[random.randint(0, len(enemy["inventory"]) - 1)]
-    player["health"] = calcDmg(enemy, player, enemyWeapon)
+    dmgDealtPlayer = calcDmg(enemy, enemyWeapon)
+    player["health"] = player["health"] - dmgDealtPlayer
     if player["health"] <= 0:
         death()
-    print(f"The {enemy['name']} attacked you with this {enemyWeapon}\nYou are now at {player['health']}hp")
+    print(f"The {enemy['name']} attacked you for {dmgDealtPlayer} with this {enemyWeapon}\nYou are now at {player['health']}hp")
     combat(enemy, enemyWeapons)
 
 
@@ -173,8 +170,8 @@ def crit(weapon, attacker):
         return 0
 
 
-def calcDmg(attacker, defender, weapon):
-    return defender["health"] - round(attacker["inventory"][weapon]["dmg"] * (random.randint(8, 12) / 10) + crit(weapon,attacker))
+def calcDmg(attacker, weapon):
+    return round(attacker["inventory"][weapon]["dmg"] * (random.randint(8, 12) / 10) + crit(weapon,attacker))
 
 
 def loot(enemy,enemyWeapons):
@@ -206,5 +203,4 @@ def drop(arg):
 def commands():
     return
 
-
-newRoom(0)
+gameStart()
