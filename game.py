@@ -41,7 +41,7 @@ enemys = [
 possibleItems = {
 "Sword":{"dmg":10,"crit":10,"durability":10},
 "Bow":{"dmg":10,"crit":10,"durability":10},
-"Spell":{"dmg":10,"crit":10,"durability":10}
+"Spell":{"dmg":5,"crit":20,"durability":8}
 }
 
 rooms = [
@@ -103,6 +103,7 @@ rooms = [
 
 def gameStart():
     chooseWeapon = input(f'Choose a weapon. {", ".join(possibleItems.keys())}\n')
+    input("")
     player["inventory"][chooseWeapon] = possibleItems[chooseWeapon]
     newRoom(0)
 
@@ -116,12 +117,17 @@ def newRoom(pos):
     
     while 1:
         action = input("").split()
+        if len(action) == 1:
+            args = 0
+        else:
+            args = action[1]
+
         match action[0]: 
             case "/fight": fight(enemy,room)
-            case "/move": move(pos, action[1])
-            case "/inventory": inventory()
+            case "/move": move(pos, args)
+            case "/inventory": inventory(args)
             case "/commands": commands()
-            case "/drop": drop(action[1]) #Drop multible things?
+            case "/drop": drop(args) #Drop multible things?
             case "/stats": stats()
 
 
@@ -187,9 +193,12 @@ def death():
     return 0
 
 
-def inventory():
-    weapons = list(player["inventory"].keys())
-    print(f"Your Inventory contains {', '.join(weapons)} ")
+def inventory(weapon):
+    if weapon != 0:
+        print(f"Your {weapon} has {player['inventory'][weapon]['dmg']} damage, {player['inventory'][weapon]['durability']} durability and a {player['inventory'][weapon]['crit']} chance of critical damage")
+    else:
+        weapons = list(player["inventory"].keys())
+        print(f"Your Inventory contains {', '.join(weapons)}")
 
 
 def stats():
