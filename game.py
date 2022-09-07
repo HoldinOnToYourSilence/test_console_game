@@ -1,4 +1,5 @@
 import random
+from re import search
 
 worldWidth = 3
 
@@ -49,55 +50,64 @@ rooms = [
     "name":"Dungeon",
     "enemys": [],
     "action":[],
-    "level":1
+    "level":1,
+    "items": {}
 },
 {
     "name":"Hallway",
     "enemys": [0],
     "action":[],
-    "level":1
+    "level":1,
+    "items": {}
 },
 {
     "name":"Dungeon",
     "enemys": [1,2],
     "action":[],
-    "level":1
+    "level":1,
+    "items": {}
 },
 {
     "name":"Dungeon",
     "enemys": [],
     "action":[],
-    "level":1
+    "level":1,
+    "items": {}
 },
 {
     "name":"Dungeon",
     "enemys": [],
     "action":[],
-    "level":1
+    "level":1,
+    "items": {}
 },
 {
     "name":"Dungeon",
     "enemys": [],
     "action":[],
-    "level":1
+    "level":1,
+    "items": {}
 },
 {
     "name":"Dungeon",
     "enemys": [],
     "action":[],
-    "level":1
+    "level":1,
+    "items": {}
 },
 {
     "name":"Dungeon",
     "enemys": [],
     "action":[],
-    "level":1
+    "level":1,
+    "items": {}
 },
 {
     "name":"Dungeon",
     "enemys": [],
     "action":[],
-    "level":1
+    "level":1,
+    "items": {}
 }
 ]
 
@@ -117,7 +127,10 @@ def newRoom(pos):
     
     while 1:
         action = input("").split()
-        if len(action) == 1:
+
+        if len(action) == 0:
+            continue
+        elif len(action) < 2:
             args = 0
         else:
             args = action[1]
@@ -127,8 +140,14 @@ def newRoom(pos):
             case "/move": move(pos, args)
             case "/inventory": inventory(args)
             case "/commands": commands()
-            case "/drop": drop(args) #Drop multible things?
+            case "/drop": drop(args, room) #Drop multible things?
             case "/stats": stats()
+            case "/search": searchGround(room)
+            case _: continue
+
+def searchGround(room):
+    items = list(room['items'].keys())
+    print(f"On the ground is: {', '.join(items)}")
 
 
 def move(pos,arg):
@@ -148,11 +167,18 @@ def fight(enemy,room):
     weapons = list(player["inventory"].keys())
     print(f"Your Inventory contains {', '.join(weapons)} ")
     enemyWeapons = list(enemy["inventory"].keys())
-    combat(enemy,enemyWeapons)
+    combat(enemy,enemyWeapons,weapons)
 
 
-def combat(enemy,enemyWeapons):
+def combat(enemy,enemyWeapons, weapons):
     attackWeapon = input("Weapon?: ")
+
+    if attackWeapon in weapons:
+        pass
+    else:
+        combat(enemy,enemyWeapons, weapons)
+        return
+
     dmgDealtEnemy = calcDmg(player, attackWeapon)
     enemy["health"] =  enemy["health"] - dmgDealtEnemy
     if enemy["health"] < 1:
@@ -166,7 +192,7 @@ def combat(enemy,enemyWeapons):
     if player["health"] <= 0:
         death()
     print(f"The {enemy['name']} attacked you for {dmgDealtPlayer} with this {enemyWeapon}\nYou are now at {player['health']}hp")
-    combat(enemy, enemyWeapons)
+    combat(enemy, enemyWeapons, weapons)
 
 
 def crit(weapon, attacker):
@@ -205,7 +231,8 @@ def stats():
     print(f"You have {player['health']}hp and {player['xp']}xp")
 
 
-def drop(arg):
+def drop(arg, room):
+    room['items'][arg] = player['inventory'][arg]
     player["inventory"].pop(arg, None)
 
 
