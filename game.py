@@ -171,28 +171,29 @@ def fight(enemy,room):
 
 
 def combat(enemy,enemyWeapons, weapons):
-    attackWeapon = input("Weapon?: ")
+    while 1:
+        attackWeapon = input("Weapon?: ")
 
-    if attackWeapon in weapons:
-        pass
-    else:
-        combat(enemy,enemyWeapons, weapons)
-        return
+        if attackWeapon in weapons:
+            pass
+        else:
+            continue
 
-    dmgDealtEnemy = calcDmg(player, attackWeapon)
-    enemy["health"] =  enemy["health"] - dmgDealtEnemy
-    if enemy["health"] < 1:
-        print(f"You attacked the {enemy['name']} with your {attackWeapon}\nThe {enemy['name']} died")
-        loot(enemy,enemyWeapons)
-        return
-    print(f"You attacked the {enemy['name']} for {dmgDealtEnemy} with your {attackWeapon}\nThe {enemy['name']} now has {enemy['health']}hp")
-    enemyWeapon = enemyWeapons[random.randint(0, len(enemy["inventory"]) - 1)]
-    dmgDealtPlayer = calcDmg(enemy, enemyWeapon)
-    player["health"] = player["health"] - dmgDealtPlayer
-    if player["health"] <= 0:
-        death()
-    print(f"The {enemy['name']} attacked you for {dmgDealtPlayer} with this {enemyWeapon}\nYou are now at {player['health']}hp")
-    combat(enemy, enemyWeapons, weapons)
+        dmgDealtEnemy = calcDmg(player, attackWeapon)
+        enemy["health"] =  enemy["health"] - dmgDealtEnemy
+        if enemy["health"] < 1:
+            print(f"You attacked the {enemy['name']} with your {attackWeapon}\nThe {enemy['name']} died")
+            loot(enemy,enemyWeapons)
+            break
+        print(f"You attacked the {enemy['name']} for {dmgDealtEnemy} with your {attackWeapon}\nThe {enemy['name']} now has {enemy['health']}hp")
+        enemyWeapon = enemyWeapons[random.randint(0, len(enemy["inventory"]) - 1)]
+        dmgDealtPlayer = calcDmg(enemy, enemyWeapon)
+        player["health"] = player["health"] - dmgDealtPlayer
+        if player["health"] <= 0:
+            death()
+
+        print(f"The {enemy['name']} attacked you for {dmgDealtPlayer} with this {enemyWeapon}\nYou are now at {player['health']}hp")
+        continue
 
 
 def crit(weapon, attacker):
